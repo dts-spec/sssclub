@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   DESIGN TOKENS — Tailwind v4 CSS-first config
+   Defining tokens here makes utilities like `bg-ocean`, `text-gold`,
+   `font-display` work automatically across the entire app.
+   ============================================================================ */
+@theme {
+  /* Brand colors */
+  --color-ocean: #0A2540;
+  --color-ocean-deep: #061829;
+  --color-ocean-rich: #0D2E4A;
+  --color-teal: #2C5F70;
+  --color-teal-soft: #4A7B8A;
+  --color-gold: #C9A96E;
+  --color-gold-deep: #A08454;
+  --color-gold-soft: #D9BE89;
+  --color-sand: #F5EFE6;
+  --color-sand-deep: #EDE3D2;
+  --color-bone: #FBF8F3;
+  --color-bone-warm: #F8F3EA;
+  --color-mist: #A8B5BF;
+  --color-mist-soft: #C8CFD5;
+  --color-ink: #1F2428;
+  --color-ink-soft: #2A2D31;
+
+  /* Typography — these use the CSS variables set by next/font in layout.tsx */
+  --font-display: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: var(--font-jetbrains), "SF Mono", Menlo, monospace;
+
+  /* Easing curves */
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Layout */
+  --container-max: 1440px;
+}
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bone);
+  color: var(--color-ink);
+  font-size: 17px;
+  line-height: 1.65;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ocean);
+}
+
+/* Reusable selection style for dark sections */
+.on-dark ::selection {
+  background: var(--color-gold);
+  color: var(--color-ocean);
+}
+
+/* ============================================================================
+   TYPOGRAPHY UTILITIES
+   These are shorthand combinations used throughout the site.
+   ============================================================================ */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-teal);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  display: inline-block;
+}
+
+.eyebrow.light {
+  color: var(--color-gold);
+}
+
+.eyebrow.center {
+  justify-content: center;
+}
+
+.eyebrow.center::before {
+  display: none;
+}
+
+/* ============================================================================
+   ANIMATION UTILITIES
+   ============================================================================ */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scrollLine {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes wordIn {
+  to { transform: translateY(0); }
+}
+
+/* Grain texture used on hero and dark sections */
+.grain-overlay {
+  position: relative;
+}
+
+.grain-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+}
+
+/* ============================================================================
+   CONTAINER UTILITIES
+   ============================================================================ */
+.container-app {
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(1.5rem, 4vw, 4rem);
+  padding-right: clamp(1.5rem, 4vw, 4rem);
+}
+
+/* ============================================================================
+   SCROLLBAR UTILITIES
+   Hide scrollbar but keep scrollability — used by horizontal carousels.
+   ============================================================================ */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
