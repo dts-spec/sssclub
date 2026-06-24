@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
+import { Parallax } from "@/components/shared/Parallax";
 
 interface Pillar {
   num: string;
@@ -74,7 +75,7 @@ export function Pillars() {
         {pillars.map((pillar, i) => (
           <RevealOnScroll key={pillar.name} delay={i * 0.1}>
             <article className="relative overflow-hidden cursor-pointer group bg-ocean">
-              <div className="relative aspect-[4/5] overflow-hidden">
+              <Parallax distance={40} className="aspect-[4/5]">
                 <Image
                   src={pillar.image}
                   alt={pillar.alt}
@@ -82,7 +83,7 @@ export function Pillars() {
                   className="object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.08]"
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
-              </div>
+              </Parallax>
 
               {/* Shade gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-ocean-deep/85 to-transparent" />

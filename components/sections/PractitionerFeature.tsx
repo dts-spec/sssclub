@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Practitioner } from "@/content/practitioners";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
+import { Parallax } from "@/components/shared/Parallax";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
@@ -32,14 +33,16 @@ export function PractitionerFeature({ practitioner }: PractitionerFeatureProps) 
     >
       {/* HERO */}
       <div className="relative h-[90vh] min-h-[640px] overflow-hidden">
-        <Image
-          src={practitioner.image}
-          alt={`${practitioner.title.line1} ${practitioner.title.line2}`}
-          fill
-          className="object-cover"
-          sizes="100vw"
-          priority
-        />
+        <Parallax distance={70} className="absolute inset-0">
+          <Image
+            src={practitioner.image}
+            alt={`${practitioner.title.line1} ${practitioner.title.line2}`}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+        </Parallax>
         <div
           className={cn(
             "absolute inset-0",
