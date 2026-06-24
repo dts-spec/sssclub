@@ -1,6 +1,5 @@
 import { Hero } from "@/components/sections/Hero";
 import { PressStrip } from "@/components/sections/PressStrip";
-import { VoyageScroll } from "@/components/sections/VoyageScroll";
 import { Manifesto } from "@/components/sections/Manifesto";
 import { Pillars } from "@/components/sections/Pillars";
 import { Vessel } from "@/components/sections/Vessel";
@@ -18,17 +17,16 @@ import { practitioners } from "@/content/practitioners";
  * Section order is intentional — sets the editorial pacing:
  *  1.  Hero                  — cinematic intro
  *  2.  PressStrip            — instant trust
- *  3.  VoyageScroll          — the open: a voyage told on scroll
- *  4.  Manifesto             — the thesis
- *  5.  Pillars               — Sail, Supper, Soul
- *  6.  Vessel (+ carousel)   — the object, scrolled through
- *  7.  Experiences           — local offerings out of Marina Del Rey
- *  8.  Excursions            — multi-day destination voyages + roadmap
- *  9.  Donna feature         — wellness pillar in depth
- *  10. Josh feature          — supper pillar in depth
- *  11. ExcursionVideo        — proof of concept
- *  12. Testimonials          — social proof
- *  13. Newsletter            — the long game
+ *  3.  Manifesto             — the thesis
+ *  4.  Pillars               — Sail, Supper, Soul
+ *  5.  Vessel (+ carousel)   — the object, scrolled through
+ *  6.  Experiences           — local offerings out of Marina Del Rey
+ *  7.  Excursions            — multi-day destination voyages + roadmap
+ *  8.  Donna feature         — wellness pillar in depth
+ *  9.  Josh feature          — supper pillar in depth
+ *  10. ExcursionVideo        — proof of concept
+ *  11. Testimonials          — social proof
+ *  12. Newsletter            — the long game
  */
 export default function HomePage() {
   const donna = practitioners.find((p) => p.slug === "donna")!;
@@ -38,7 +36,6 @@ export default function HomePage() {
     <>
       <Hero />
       <PressStrip />
-      <VoyageScroll />
       <Manifesto />
       <Pillars />
       <Vessel />

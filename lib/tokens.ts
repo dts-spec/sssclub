@@ -1,5 +1,5 @@
 /**
- * Design tokens for Sail, Supper, & Soul Club.
+ * Design tokens for Sail, Supper & Soul Club.
  *
  * This is the canonical TypeScript representation of the brand system.
  * Import from here when you need a color in JS (e.g. inline styles,
@@ -79,32 +79,4 @@ export const variants = {
 export const viewportDefaults = {
   once: true,
   margin: "0px 0px -80px 0px",
-} as const;
-
-/**
- * Scroll-linked motion settings for the parallax + voyage-narrative work.
- * Centralizes the magic numbers behind the cinematic open, the same way
- * `easings`/`durations` centralize the rest of the motion system.
- */
-export const parallax = {
-  /** Default vertical travel (px) for the reusable <Parallax> wrapper. */
-  distance: 80,
-  /**
-   * Oversize factor for any image inside <Parallax>. The element must be
-   * larger than its clip box so the vertical travel never exposes an edge.
-   * Use as a Tailwind `scale-[1.12]` or equivalent height overscan.
-   */
-  overscan: 1.12,
-} as const;
-
-/**
- * The pinned "story of a voyage" section (VoyageScroll).
- */
-export const voyage = {
-  /** Total scroll height of the pinned section, as a viewport multiple. */
-  scrollHeightVh: 450,
-  /** Background zoom range as each beat scrubs past: enter → settle. */
-  zoom: [1.08, 1] as [number, number],
-  /** Vertical drift (px) of a vignette across its window: enter → settle → exit. */
-  drift: [48, 0, -48] as [number, number, number],
 } as const;

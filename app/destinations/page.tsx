@@ -1,7 +1,7 @@
 import { Destinations } from "@/components/sections/Destinations";
 
 export const metadata = {
-  title: "Destinations — Sail, Supper, & Soul Club",
+  title: "Destinations — Sail, Supper & Soul Club",
   description:
     "Five waters, one boat. Marina Del Rey, Catalina, Baja, Vancouver Island.",
 };

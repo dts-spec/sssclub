@@ -33,7 +33,7 @@ export function Footer() {
         <div className="grid md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 md:gap-16 pb-16 border-b border-white/10">
           <div>
             <div className="font-display italic font-normal text-[1.625rem] text-gold mb-5 leading-[1.15]">
-              Sail, Supper, &amp; Soul Club
+              Sail, Supper &amp; Soul Club
             </div>
             <p className="text-[0.9375rem] leading-[1.65] mb-8 font-light max-w-xs">
               Coastal restoration for couples and seekers. Six guests, never

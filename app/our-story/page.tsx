@@ -3,7 +3,7 @@ import { PractitionerFeature } from "@/components/sections/PractitionerFeature";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
 export const metadata = {
-  title: "Our Story — Sail, Supper, & Soul Club",
+  title: "Our Story — Sail, Supper & Soul Club",
   description: "Donna and Josh Otten. Twenty-two years together.",
 };
 
@@ -23,7 +23,7 @@ export default function OurStoryPage() {
               <em className="italic">and counting.</em>
             </h1>
             <p className="font-display italic font-light text-[clamp(1.5rem,2.4vw,2.125rem)] leading-[1.45] text-ocean">
-              We started Sail, Supper, &amp; Soul Club because everyone we know
+              We started Sail, Supper &amp; Soul Club because everyone we know
               was telling us they couldn&apos;t remember the last time they
               actually rested. We thought we could fix that, six guests at a
               time.

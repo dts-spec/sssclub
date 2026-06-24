@@ -25,7 +25,7 @@ export async function generateMetadata({
   const experience = getExperienceBySlug(slug);
   if (!experience) return {};
   return {
-    title: `${experience.name} — Sail, Supper, & Soul Club`,
+    title: `${experience.name} — Sail, Supper & Soul Club`,
     description: experience.tagline,
   };
 }
