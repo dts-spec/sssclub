@@ -27,11 +27,11 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sail, Supper & Soul Club — Marina Del Rey, California",
+  title: "Sail, Supper, & Soul Club — Marina Del Rey, California",
   description:
     "A six-guest curated catamaran experience from Marina Del Rey. Slow voyages, considered meals from Josh's galley, and breathwork at sea with Donna.",
   openGraph: {
-    title: "Sail, Supper & Soul Club",
+    title: "Sail, Supper, & Soul Club",
     description:
       "Coastal restoration for couples and seekers. Marina Del Rey, California.",
     locale: "en_US",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sail, Supper & Soul Club",
+    title: "Sail, Supper, & Soul Club",
     description: "Coastal restoration for couples and seekers.",
   },
 };

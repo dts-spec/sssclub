@@ -4,7 +4,7 @@ import { ExcursionCard } from "@/components/shared/ExcursionCard";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
 export const metadata = {
-  title: "Excursions — Sail, Supper & Soul Club",
+  title: "Excursions — Sail, Supper, & Soul Club",
   description:
     "Multi-day destination voyages. Catalina from 2026. Puerto Vallarta and the Inside Passage from 2028. The Greek Islands and BVI from 2029.",
 };

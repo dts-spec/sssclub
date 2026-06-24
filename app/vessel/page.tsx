@@ -1,7 +1,7 @@
 import { Vessel } from "@/components/sections/Vessel";
 
 export const metadata = {
-  title: "The Vessel — Sail, Supper & Soul Club",
+  title: "The Vessel — Sail, Supper, & Soul Club",
   description: "A 51-foot Lagoon catamaran, cared for like home.",
 };
 

@@ -3,7 +3,7 @@ import { ExperienceCard } from "@/components/shared/ExperienceCard";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
 export const metadata = {
-  title: "Experiences — Sail, Supper & Soul Club",
+  title: "Experiences — Sail, Supper, & Soul Club",
   description:
     "Seven local offerings out of Marina Del Rey: evening dinners, day sails, breathwork, yoga, business charters, small events, and private buyouts. Always six guests, never more.",
 };

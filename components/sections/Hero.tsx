@@ -1,113 +1,155 @@
 "use client";
 
-import { motion } from "motion/react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useScroll,
+  useTransform,
+  useReducedMotion,
+} from "motion/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { HeroBanner } from "@/components/shared/HeroBanner";
+import { offers } from "@/content/offers";
 import { easings } from "@/lib/tokens";
 
 /**
  * Hero section.
  *
- * Full-bleed YouTube background video (Lagoon 51 footage), static poster
- * fallback while it loads, animated word-by-word headline reveal.
+ * A full-bleed rotating banner where the image AND the copy advance together —
+ * each slide showcases one offer (the dinner party, the reset, the pitch, the
+ * romantic getaway, the Catalina staycation). Parallax / scroll-out treatment
+ * carries it into the voyage section below.
  *
- * To swap the background video:
- * - Replace `HERO_VIDEO_ID` with another YouTube ID.
- * - Or replace with an MP4 in /public/videos/ and swap iframe for <video>.
+ * The offers live in content/offers.ts. The Hero owns the rotation index and
+ * hands it to <HeroBanner> so imagery and text never drift out of sync.
  */
 
-const HERO_VIDEO_ID = "3TVWXZW1XuU"; // Lagoon 51 video (user-provided)
+/** How long each offer holds before advancing, in ms. */
+const HOLD_MS = 6000;
 
-const HERO_HEADLINE_WORDS = ["Coastal", "restoration,", "six guests at a time."];
+/** Render a headline with one gold-soft italic word for emphasis. */
+function renderTitle(title: string, emphasis: string): ReactNode {
+  if (!emphasis || !title.includes(emphasis)) return title;
+  const [before, after] = title.split(emphasis);
+  return (
+    <>
+      {before}
+      <em className="italic text-gold-soft">{emphasis}</em>
+      {after}
+    </>
+  );
+}
 
 export function Hero() {
+  const heroRef = useRef<HTMLElement>(null);
+  const prefersReduced = useReducedMotion();
+  const [index, setIndex] = useState(0);
+
+  // Advance the offers (paused under reduced motion).
+  useEffect(() => {
+    if (prefersReduced) return;
+    const id = setInterval(
+      () => setIndex((i) => (i + 1) % offers.length),
+      HOLD_MS
+    );
+    return () => clearInterval(id);
+  }, [prefersReduced]);
+
+  // Scroll-linked parallax: the background drifts and zooms slowly while the
+  // content lifts away and fades — a cinematic handoff into the voyage section.
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+
+  const offer = offers[index];
+
   return (
-    <section className="relative h-screen min-h-[720px] max-h-[1100px] overflow-hidden bg-ocean-deep flex items-end on-dark">
-      {/* Static poster while video loads */}
-      <div
-        className="absolute inset-0 z-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `
-            linear-gradient(180deg, rgba(6,24,41,0.35) 0%, rgba(6,24,41,0.25) 40%, rgba(6,24,41,0.75) 100%),
-            url('/images/hero/catamaran-aerial.jpg')
-          `,
-        }}
-      />
+    <section
+      ref={heroRef}
+      className="relative h-screen min-h-[720px] max-h-[1100px] overflow-hidden bg-ocean-deep flex items-end on-dark"
+    >
+      {/* Parallax background stack (rotating banner → gradient → grain) */}
+      <motion.div
+        className="absolute inset-0 z-0"
+        style={prefersReduced ? undefined : { y: bgY, scale: bgScale }}
+      >
+        {/* Rotating image banner — synced to the offer index */}
+        <HeroBanner index={index} />
 
-      {/* Background YouTube video */}
-      <div className="absolute inset-0 z-[1] overflow-hidden">
-        <iframe
-          src={`https://www.youtube.com/embed/${HERO_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&disablekb=1`}
-          title="Lagoon 51 at sea"
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[177.78vh] min-w-full h-screen min-h-[56.25vw] border-0 pointer-events-none"
-          allow="autoplay; encrypted-media; fullscreen"
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(6,24,41,0.30) 0%, rgba(6,24,41,0.20) 30%, rgba(6,24,41,0.78) 100%)",
+          }}
         />
-      </div>
 
-      {/* Gradient overlay */}
-      <div
-        className="absolute inset-0 z-[2] pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(6,24,41,0.25) 0%, rgba(6,24,41,0.15) 30%, rgba(6,24,41,0.7) 100%)",
-        }}
-      />
-
-      {/* Grain texture */}
-      <div
-        className="absolute inset-0 z-[3] opacity-50 pointer-events-none"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E\")",
-        }}
-      />
+        {/* Grain texture */}
+        <div
+          className="absolute inset-0 opacity-50 pointer-events-none"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E\")",
+          }}
+        />
+      </motion.div>
 
       {/* Content */}
-      <div className="relative z-[4] w-full px-[clamp(1.5rem,4vw,4rem)] pb-[clamp(3rem,7vw,6rem)] text-white">
+      <motion.div
+        className="relative z-[4] w-full px-[clamp(1.5rem,4vw,4rem)] pb-[clamp(3rem,7vw,6rem)] text-white"
+        style={prefersReduced ? undefined : { y: contentY, opacity: contentOpacity }}
+      >
         <div className="container-app !px-0 max-w-[1440px]">
-          {/* Eyebrow */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4, duration: 1.2, ease: easings.premium }}
-            className="flex items-center gap-3.5 font-mono text-[0.7rem] font-medium tracking-[0.32em] uppercase text-gold mb-[clamp(1.5rem,3vw,2.5rem)]"
-          >
-            <span className="w-9 h-px bg-gold" />
-            Marina Del Rey · California · Est. 2026
-          </motion.div>
+          {/* Rotating offer: eyebrow → headline → blurb */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -24 }}
+              transition={{ duration: 0.7, ease: easings.premium }}
+            >
+              {/* Eyebrow — offer name (+ stars for the staycation) */}
+              <div className="flex items-center gap-3.5 font-mono text-[0.7rem] font-medium tracking-[0.32em] uppercase text-gold mb-[clamp(1.25rem,2.5vw,2rem)]">
+                <span className="w-9 h-px bg-gold" />
+                <span>{offer.name}</span>
+                {offer.stars && (
+                  <span className="tracking-[0.25em] text-gold-soft" aria-label="Five stars">
+                    ★★★★★
+                  </span>
+                )}
+              </div>
 
-          {/* Headline with word-by-word reveal */}
-          <h1 className="font-display font-light text-[clamp(3rem,10.5vw,10rem)] leading-[0.95] tracking-[-0.025em] mb-[clamp(1.5rem,2.5vw,2rem)] text-balance">
-            {HERO_HEADLINE_WORDS.map((word, i) => (
-              <span key={i} className="block overflow-hidden">
-                <motion.span
-                  className={`inline-block ${i === 1 ? "italic text-gold-soft" : ""}`}
-                  initial={{ y: "110%" }}
-                  animate={{ y: "0%" }}
-                  transition={{
-                    delay: 1.4 + i * 0.15,
-                    duration: 1.6,
-                    ease: easings.premium,
-                  }}
-                >
-                  {word}
-                </motion.span>
-              </span>
-            ))}
-          </h1>
+              {/* Headline */}
+              <h1 className="font-display font-light text-[clamp(2.75rem,8vw,7rem)] leading-[0.98] tracking-[-0.025em] text-balance max-w-[15ch]">
+                {renderTitle(offer.title, offer.emphasis)}
+              </h1>
 
-          {/* Foot: tagline + CTAs separated by hairline */}
+              {/* Blurb */}
+              <p className="mt-[clamp(1.25rem,2.5vw,2rem)] max-w-[520px] text-[1.0625rem] font-light leading-[1.7] text-white/90">
+                {offer.blurb}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Fixed foot: location + CTAs, separated by a hairline */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.4, duration: 1.2, ease: easings.premium }}
-            className="flex justify-between items-end flex-wrap gap-10 mt-[clamp(2rem,4vw,4rem)] pt-[clamp(1.5rem,3vw,2.5rem)] border-t border-white/20"
+            transition={{ delay: 0.5, duration: 1, ease: easings.premium }}
+            className="flex justify-between items-end flex-wrap gap-8 mt-[clamp(2rem,4vw,3.5rem)] pt-[clamp(1.5rem,3vw,2.5rem)] border-t border-white/20"
           >
-            <p className="max-w-[480px] text-base font-light leading-[1.7] text-white/90">
-              Slow voyages from Marina Del Rey aboard a 51-foot catamaran.
-              Considered meals from Josh&apos;s galley. Breathwork at sea with Donna.
-              Never crowded. Never rushed.
-            </p>
+            <div className="font-mono text-[0.7rem] tracking-[0.28em] uppercase text-white/60">
+              Marina Del Rey · California · Six guests
+            </div>
             <div className="flex gap-3.5 flex-wrap">
               <Button asChild variant="primary">
                 <Link href="#voyages">View Voyages</Link>
@@ -118,13 +160,13 @@ export function Hero() {
             </div>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 3, duration: 1, ease: easings.premium }}
+        transition={{ delay: 1.2, duration: 1, ease: easings.premium }}
         className="absolute bottom-8 left-[clamp(1.5rem,4vw,4rem)] z-[4] hidden sm:flex items-center gap-3 font-mono text-[0.65rem] tracking-[0.3em] uppercase text-white/60"
       >
         <div className="relative w-[60px] h-px bg-white/40 overflow-hidden">

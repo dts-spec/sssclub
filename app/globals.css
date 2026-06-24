@@ -172,3 +172,27 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ============================================================================
+   REDUCED MOTION
+   A brand built on restraint should degrade gracefully. When the visitor
+   asks for less motion, we honor it: kill smooth-scroll (which fights
+   scroll-linked animation), and neutralize the CSS keyframe utilities
+   (scrollLine / fadeUp / wordIn) and the Hero's inline scroll-line.
+   JS-driven motion (parallax, the voyage scrub) opts out separately via
+   motion's useReducedMotion() in the components themselves.
+   ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

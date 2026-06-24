@@ -22,7 +22,7 @@ export async function generateMetadata({
   const excursion = getExcursionBySlug(slug);
   if (!excursion) return {};
   return {
-    title: `${excursion.name} — Sail, Supper & Soul Club`,
+    title: `${excursion.name} — Sail, Supper, & Soul Club`,
     description: excursion.tagline,
   };
 }

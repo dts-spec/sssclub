@@ -1,7 +1,7 @@
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
 export const metadata = {
-  title: "Journal — Sail, Supper & Soul Club",
+  title: "Journal — Sail, Supper, & Soul Club",
   description: "Notes from the water. Recipes, breathwork, voyages.",
 };
 

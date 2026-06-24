@@ -23,8 +23,8 @@ export function Nav() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100] grid items-center gap-8 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] px-[clamp(1.5rem,4vw,4rem)]",
-        "grid-cols-[1fr_auto_1fr]",
+        "fixed top-0 left-0 right-0 z-[100] flex items-center justify-between gap-4 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] px-[clamp(1.5rem,4vw,4rem)]",
+        "md:grid md:grid-cols-[1fr_auto_1fr] md:gap-8",
         scrolled
           ? "bg-bone/94 backdrop-blur-xl backdrop-saturate-[1.4] py-4 border-b border-black/[0.08]"
           : "bg-transparent py-6"
@@ -45,11 +45,11 @@ export function Nav() {
       <Link
         href="/"
         className={cn(
-          "font-display italic font-medium text-[1.375rem] tracking-[0.02em] text-center transition-colors duration-500",
+          "font-display italic font-medium text-[1.05rem] sm:text-[1.25rem] md:text-[1.375rem] tracking-[0.02em] text-center whitespace-nowrap transition-colors duration-500",
           scrolled ? "text-ocean" : "text-white"
         )}
       >
-        Sail, Supper &amp; Soul
+        Sail, Supper, &amp; Soul Club
       </Link>
 
       <nav className="flex justify-end items-center gap-7">
@@ -73,7 +73,7 @@ export function Nav() {
         ))}
         <Link
           href="#book"
-          className="font-mono text-[0.7rem] font-medium tracking-[0.22em] uppercase text-ocean bg-gold px-6 py-3.5 transition-all duration-300 hover:bg-gold-soft hover:tracking-[0.28em]"
+          className="font-mono text-[0.7rem] font-medium tracking-[0.22em] uppercase text-ocean bg-gold px-4 py-3 md:px-6 md:py-3.5 whitespace-nowrap transition-all duration-300 hover:bg-gold-soft hover:tracking-[0.28em]"
         >
           Reserve
         </Link>
