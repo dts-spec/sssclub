@@ -1,4 +1,5 @@
 import { Hero } from "@/components/sections/Hero";
+import { IntroOverlay } from "@/components/shared/IntroOverlay";
 import { PressStrip } from "@/components/sections/PressStrip";
 import { VoyageScroll } from "@/components/sections/VoyageScroll";
 import { Manifesto } from "@/components/sections/Manifesto";
@@ -36,6 +37,7 @@ export default function HomePage() {
 
   return (
     <>
+      <IntroOverlay />
       <Hero />
       <PressStrip />
       <VoyageScroll />
