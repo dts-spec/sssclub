@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { easings } from "@/lib/tokens";
 
 /**
@@ -22,16 +22,17 @@ import { easings } from "@/lib/tokens";
 // The image the doorway opens onto — the Lagoon 55 cove shot.
 const MAIN_IMAGE = "/images/hero/lagoon-55.jpg";
 
+// The "Opening Slides" — flashed one at a time after the doors open.
 const IMAGES = [
-  MAIN_IMAGE,
-  "/images/destinations/catalina-island.jpg",
-  "/images/pillars/supper.jpg",
-  "/images/vessel/exterior-anchored.jpg",
-  "/images/pillars/sail.jpg",
+  "/images/intro/sailing.jpg",
+  "/images/intro/catamaran.jpg",
+  "/images/intro/cockpit.jpg",
+  "/images/intro/dining.jpg",
+  "/images/intro/catalina.jpg",
 ];
 
-/** How long each image holds, in ms (~1 second each, per request). */
-const FLASH_MS = 1000;
+/** How long each image holds, in ms (~2 seconds each, per request). */
+const FLASH_MS = 2000;
 
 type Phase = "pop" | "doorway" | "flash" | "reveal";
 
@@ -84,12 +85,14 @@ export function IntroOverlay() {
     sessionStorage.setItem("sssc-intro-seen", "1");
     document.body.style.overflow = "hidden";
     const timers = [
-      setTimeout(() => setPhase("doorway"), 900),
-      setTimeout(() => setPhase("flash"), 2450),
+      // Title card holds for ~3s, then the doors open (over ~1s, set below).
+      setTimeout(() => setPhase("doorway"), 3000),
+      // Doors finish ~4s; hold on the main image a beat, then flash the slides.
+      setTimeout(() => setPhase("flash"), 4300),
       setTimeout(() => {
         setActive(false);
         document.body.style.overflow = "";
-      }, 12000),
+      }, 22000),
     ];
     return () => {
       timers.forEach(clearTimeout);
@@ -147,37 +150,40 @@ export function IntroOverlay() {
           sizes="100vw"
           className="object-cover"
         />
-        <AnimatePresence>
-          {showImages && (
-            <motion.div
-              key={img}
-              className="absolute inset-0"
-              initial={{ opacity: 0, scale: 1.06 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                opacity: { duration: 0.45, ease: easings.premium },
-                scale: { duration: 1.4, ease: "linear" },
-              }}
-            >
-              <Image
-                src={IMAGES[img]}
-                alt=""
-                fill
-                priority={img === 0}
-                sizes="100vw"
-                className="object-cover"
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {IMAGES.map((src, i) => (
+          <motion.div
+            key={src}
+            className="absolute inset-0"
+            initial={{ opacity: 0, scale: 1.06 }}
+            animate={{
+              // Each slide fades in when reached and stays beneath the next,
+              // so nothing (incl. the first slide) peeks through between images.
+              opacity: showImages && i <= img ? 1 : 0,
+              scale: showImages && i === img ? 1 : 1.06,
+            }}
+            transition={{
+              opacity: { duration: 0.5, ease: easings.premium },
+              scale: { duration: FLASH_MS / 1000, ease: "linear" },
+            }}
+            style={{ willChange: "opacity, transform" }}
+          >
+            <Image
+              src={src}
+              alt=""
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              className="object-cover"
+            />
+          </motion.div>
+        ))}
       </div>
 
       {/* Left door */}
       <motion.div
         className="absolute left-0 top-0 h-full w-1/2 overflow-hidden bg-bone"
         animate={{ x: doorsOpen ? "-100%" : "0%" }}
-        transition={{ duration: 1.45, ease: easings.premium }}
+        transition={{ duration: 1.0, ease: easings.premium }}
       >
         <Door side="left" />
       </motion.div>
@@ -186,7 +192,7 @@ export function IntroOverlay() {
       <motion.div
         className="absolute right-0 top-0 h-full w-1/2 overflow-hidden bg-bone"
         animate={{ x: doorsOpen ? "100%" : "0%" }}
-        transition={{ duration: 1.45, ease: easings.premium }}
+        transition={{ duration: 1.0, ease: easings.premium }}
       >
         <Door side="right" />
       </motion.div>
