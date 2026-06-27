@@ -19,7 +19,15 @@ import { easings } from "@/lib/tokens";
 
 const FADE_S = 1.6;
 
-export function HeroBanner({ index }: { index: number }) {
+export function HeroBanner({
+  index,
+  revealed = true,
+}: {
+  index: number;
+  /** Until the intro reveals, hold the active slide at scale 1 so the zoom-to-fill
+   * handoff lands on the exact same framing (no scale pop). */
+  revealed?: boolean;
+}) {
   const prefersReduced = useReducedMotion();
 
   if (prefersReduced) {
@@ -46,7 +54,10 @@ export function HeroBanner({ index }: { index: number }) {
             key={offer.image}
             className="absolute inset-0"
             initial={{ opacity: i === 0 ? 1 : 0, scale: 1 }}
-            animate={{ opacity: active ? 1 : 0, scale: active ? 1.06 : 1 }}
+            animate={{
+              opacity: active ? 1 : 0,
+              scale: active && revealed ? 1.06 : 1,
+            }}
             transition={{
               opacity: { duration: FADE_S, ease: easings.premium },
               scale: { duration: 7, ease: "linear" },

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { HeroBanner } from "@/components/shared/HeroBanner";
 import { offers } from "@/content/offers";
 import { easings } from "@/lib/tokens";
+import { introReveal } from "@/lib/intro";
 
 /**
  * Hero section.
@@ -46,15 +47,34 @@ export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   const prefersReduced = useReducedMotion();
   const [index, setIndex] = useState(0);
+  const [copyIn, setCopyIn] = useState(false);
 
-  // Advance the offers (paused under reduced motion).
+  // Advance the offers — but only once the intro has handed off, so the carousel
+  // stays on its first frame (the image the intro zooms to) until the reveal.
+  // Paused under reduced motion.
   useEffect(() => {
-    if (prefersReduced) return;
+    if (prefersReduced || !copyIn) return;
     const id = setInterval(
       () => setIndex((i) => (i + 1) % offers.length),
       HOLD_MS
     );
     return () => clearInterval(id);
+  }, [prefersReduced, copyIn]);
+
+  // Animate the hero copy in when the intro reveals (the last image zooming to
+  // fill). Shows immediately if there's no intro / reduced motion; a fallback
+  // timer guarantees it can never stay hidden.
+  useEffect(() => {
+    if (prefersReduced || introReveal.done()) {
+      setCopyIn(true);
+      return;
+    }
+    const unsub = introReveal.subscribe(() => setCopyIn(true));
+    const fallback = setTimeout(() => setCopyIn(true), 13000);
+    return () => {
+      unsub();
+      clearTimeout(fallback);
+    };
   }, [prefersReduced]);
 
   // Scroll-linked parallax: the background drifts and zooms slowly while the
@@ -80,8 +100,9 @@ export function Hero() {
         className="absolute inset-0 z-0"
         style={prefersReduced ? undefined : { y: bgY, scale: bgScale }}
       >
-        {/* Rotating image banner — synced to the offer index */}
-        <HeroBanner index={index} />
+        {/* Rotating image banner — synced to the offer index. `revealed` holds
+            the Ken-Burns zoom until the intro hands off, so the takeover is seamless. */}
+        <HeroBanner index={index} revealed={copyIn} />
 
         {/* Gradient overlay */}
         <div
@@ -108,6 +129,11 @@ export function Hero() {
         style={prefersReduced ? undefined : { y: contentY, opacity: contentOpacity }}
       >
         <div className="container-app !px-0 max-w-[1440px]">
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={copyIn ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+            transition={{ duration: 1.0, ease: easings.premium }}
+          >
           {/* Rotating offer: eyebrow → headline → blurb */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -158,6 +184,7 @@ export function Hero() {
                 <Link href="#book">Hold a Date</Link>
               </Button>
             </div>
+          </motion.div>
           </motion.div>
         </div>
       </motion.div>

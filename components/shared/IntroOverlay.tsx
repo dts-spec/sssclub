@@ -4,95 +4,73 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 import { easings } from "@/lib/tokens";
+import { introReveal } from "@/lib/intro";
+import { offers } from "@/content/offers";
 
 /**
- * IntroOverlay — a one-time opening animation (inspired by thebendclub.com).
+ * IntroOverlay — the opening animation (inspired by thebendclub.com).
  *
- * Sequence:
- *   1. "SAIL, SUPPER, SOUL CLUB" pops up on a light "chalk" page
- *   2. the page opens like a doorway — two halves slide apart left/right
- *   3. our photos flash in one at a time, ~1 second each
- *   4. it fades to reveal the main banner
+ * 1. "SAIL, SUPPER, SOUL CLUB" grows in from the middle of a chalk page
+ * 2. the COPY splits to open a window in the middle
+ * 3. the Opening Slides flash inside the window, one at a time
+ * 4. the LAST slide is the homepage carousel's opening frame; it zooms out to
+ *    fill the screen and the carousel takes over on that exact image — no cut.
+ *    The hero copy then animates in (via introReveal).
  *
- * Plays once per browser session (sessionStorage), can be clicked to skip,
- * auto-dismisses on a hard safety timer so it can never block the page, and is
- * skipped entirely under prefers-reduced-motion.
+ * Plays on every page load (no sessionStorage). Click-to-skip, reduced-motion
+ * safe, and auto-dismisses on a hard timer so it can never block the page.
  */
 
-// The image the doorway opens onto — the Lagoon 55 cove shot.
-const MAIN_IMAGE = "/images/hero/lagoon-55.jpg";
-
-// The "Opening Slides" — flashed one at a time after the doors open.
 const IMAGES = [
   "/images/intro/sailing.jpg",
   "/images/intro/catamaran.jpg",
   "/images/intro/cockpit.jpg",
   "/images/intro/dining.jpg",
-  "/images/intro/catalina.jpg",
+  // The final slide IS the hero carousel's first frame, so the zoom-to-fill
+  // hands off seamlessly — the same image becomes the homepage. Stays in sync
+  // automatically if the carousel's lead image changes.
+  offers[0].image,
 ];
+const LAST = IMAGES[IMAGES.length - 1];
 
-/** How long each image holds, in ms (~2 seconds each, per request). */
-const FLASH_MS = 2000;
+/** How long each image holds, in ms. */
+const FLASH_MS = 1000;
+/** How long the last image takes to zoom to fill, in ms. */
+const ZOOM_MS = 1200;
 
-type Phase = "pop" | "doorway" | "flash" | "reveal";
+type Phase = "pop" | "split" | "flash" | "zoom" | "reveal";
 
+const LEFT = "SAIL, SUPPER,";
+const RIGHT = "SOUL CLUB";
 const wordmark =
-  "whitespace-nowrap font-display font-medium text-ocean text-[clamp(1.1rem,5vw,3.75rem)] tracking-[0.12em] leading-none";
+  "font-display font-medium text-ocean text-[clamp(1.1rem,4.8vw,4.25rem)] tracking-[0.08em] leading-none whitespace-nowrap";
 
 const GRAIN =
   "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E\")";
-
-/** One half of the chalk doorway, carrying its half of the centered wordmark. */
-function Door({ side }: { side: "left" | "right" }) {
-  return (
-    <>
-      <div
-        className="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none"
-        style={{ backgroundImage: GRAIN }}
-      />
-      {/* Full-viewport-wide wordmark, pinned to the screen edge so it centers on
-          screen; the door's overflow-hidden shows only this side's half. */}
-      <div
-        className={`absolute top-0 h-full w-[100vw] flex items-center justify-center ${
-          side === "left" ? "left-0" : "right-0"
-        }`}
-      >
-        <motion.div
-          className={wordmark}
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: easings.premium }}
-        >
-          SAIL, SUPPER, SOUL CLUB
-        </motion.div>
-      </div>
-    </>
-  );
-}
 
 export function IntroOverlay() {
   const [active, setActive] = useState(true);
   const [phase, setPhase] = useState<Phase>("pop");
   const [img, setImg] = useState(0);
 
-  // Main sequence: pop → doorway → flash, plus a hard safety dismiss.
+  // Main sequence: pop (hold) → split → flash. Plays every load.
   useEffect(() => {
+    introReveal.reset();
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced || sessionStorage.getItem("sssc-intro-seen")) {
+    if (reduced) {
       setActive(false);
+      introReveal.fire();
       return;
     }
-    sessionStorage.setItem("sssc-intro-seen", "1");
     document.body.style.overflow = "hidden";
     const timers = [
-      // Title card holds for ~3s, then the doors open (over ~1s, set below).
-      setTimeout(() => setPhase("doorway"), 3000),
-      // Doors finish ~4s; hold on the main image a beat, then flash the slides.
-      setTimeout(() => setPhase("flash"), 4300),
+      setTimeout(() => setPhase("split"), 2000),
+      setTimeout(() => setPhase("flash"), 3000),
       setTimeout(() => {
         setActive(false);
+        introReveal.fire();
         document.body.style.overflow = "";
-      }, 22000),
+      }, 16000),
     ];
     return () => {
       timers.forEach(clearTimeout);
@@ -100,24 +78,32 @@ export function IntroOverlay() {
     };
   }, []);
 
-  // Advance the flashing images one at a time, then reveal.
+  // Advance the flashing images; after the last, zoom it to fill.
   useEffect(() => {
     if (phase !== "flash") return;
     const last = img >= IMAGES.length - 1;
     const t = setTimeout(
-      () => (last ? setPhase("reveal") : setImg((i) => i + 1)),
+      () => (last ? setPhase("zoom") : setImg((i) => i + 1)),
       FLASH_MS
     );
     return () => clearTimeout(t);
   }, [phase, img]);
 
-  // Reveal → unmount.
+  // Zoom → reveal.
+  useEffect(() => {
+    if (phase !== "zoom") return;
+    const t = setTimeout(() => setPhase("reveal"), ZOOM_MS);
+    return () => clearTimeout(t);
+  }, [phase]);
+
+  // Reveal → hand off (hero copy animates in) and unmount.
   useEffect(() => {
     if (phase !== "reveal") return;
+    introReveal.fire();
     const t = setTimeout(() => {
       setActive(false);
       document.body.style.overflow = "";
-    }, 800);
+    }, 900);
     return () => clearTimeout(t);
   }, [phase]);
 
@@ -125,77 +111,84 @@ export function IntroOverlay() {
 
   const skip = () => {
     setActive(false);
+    introReveal.fire();
     document.body.style.overflow = "";
   };
 
-  const doorsOpen = phase !== "pop";
-  const showImages = phase === "flash" || phase === "reveal";
+  const open = phase === "split" || phase === "flash" || phase === "zoom";
+  const showImages = open;
+  const zooming = phase === "zoom" || phase === "reveal";
 
   return (
     <motion.div
       onClick={skip}
       aria-hidden
-      className="fixed inset-0 z-[300] cursor-pointer overflow-hidden"
+      className="fixed inset-0 z-[300] flex cursor-pointer items-center justify-center overflow-hidden bg-bone"
       animate={{ opacity: phase === "reveal" ? 0 : 1 }}
-      transition={{ duration: 0.8, ease: easings.premium }}
+      transition={{ duration: 0.9, ease: easings.premium }}
     >
-      {/* Stage behind the doors — the doorway opens onto the main image,
-          then photos flash in one at a time on top of it */}
-      <div className="absolute inset-0 bg-ocean-deep">
-        <Image
-          src={MAIN_IMAGE}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        {IMAGES.map((src, i) => (
-          <motion.div
-            key={src}
-            className="absolute inset-0"
-            initial={{ opacity: 0, scale: 1.06 }}
-            animate={{
-              // Each slide fades in when reached and stays beneath the next,
-              // so nothing (incl. the first slide) peeks through between images.
-              opacity: showImages && i <= img ? 1 : 0,
-              scale: showImages && i === img ? 1 : 1.06,
-            }}
-            transition={{
-              opacity: { duration: 0.5, ease: easings.premium },
-              scale: { duration: FLASH_MS / 1000, ease: "linear" },
-            }}
-            style={{ willChange: "opacity, transform" }}
-          >
-            <Image
-              src={src}
-              alt=""
-              fill
-              priority={i === 0}
-              sizes="100vw"
-              className="object-cover"
-            />
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Left door */}
+      {/* Chalk grain (fades as the image takes over) */}
       <motion.div
-        className="absolute left-0 top-0 h-full w-1/2 overflow-hidden bg-bone"
-        animate={{ x: doorsOpen ? "-100%" : "0%" }}
-        transition={{ duration: 1.0, ease: easings.premium }}
+        className="absolute inset-0 mix-blend-multiply pointer-events-none"
+        style={{ backgroundImage: GRAIN }}
+        animate={{ opacity: zooming ? 0 : 0.4 }}
+        transition={{ duration: 0.6, ease: easings.premium }}
+      />
+
+      {/* Wordmark — grows in from the middle, then splits; fades as it zooms */}
+      <motion.div
+        className="relative z-10 flex w-full items-center px-6 text-[clamp(1.1rem,4.8vw,4.25rem)]"
+        initial={{ opacity: 0, scale: 0.82, y: 18 }}
+        animate={{ opacity: zooming ? 0 : 1, scale: 1, y: 0 }}
+        transition={{ duration: zooming ? 0.5 : 1.0, ease: easings.premium }}
       >
-        <Door side="left" />
+        <span className={`flex-1 text-right ${wordmark}`}>{LEFT}</span>
+
+        {/* Center window — opens between the copy; the slides flash inside */}
+        <motion.div
+          className="relative mx-[0.3em] h-[4.1em] shrink-0 overflow-hidden rounded-[3px] bg-ocean-deep shadow-xl ring-1 ring-ocean/10"
+          initial={{ width: "0em" }}
+          animate={{ width: open ? "6.2em" : "0em" }}
+          transition={{ duration: 1.0, ease: easings.premium }}
+        >
+          {IMAGES.map((src, i) => (
+            <motion.div
+              key={src}
+              className="absolute inset-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: showImages && i <= img ? 1 : 0 }}
+              transition={{ duration: 0.5, ease: easings.premium }}
+            >
+              <Image
+                src={src}
+                alt=""
+                fill
+                priority={i === 0}
+                sizes="(max-width: 768px) 30vw, 220px"
+                className="object-cover"
+              />
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <span className={`flex-1 text-left ${wordmark}`}>{RIGHT}</span>
       </motion.div>
 
-      {/* Right door */}
-      <motion.div
-        className="absolute right-0 top-0 h-full w-1/2 overflow-hidden bg-bone"
-        animate={{ x: doorsOpen ? "100%" : "0%" }}
-        transition={{ duration: 1.0, ease: easings.premium }}
-      >
-        <Door side="right" />
-      </motion.div>
+      {/* Last slide zooms from the window to fill the whole screen */}
+      {zooming && (
+        <motion.div
+          className="absolute inset-0 z-20"
+          initial={{ opacity: 0, scale: 0.3 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            opacity: { duration: 0.45, ease: easings.premium },
+            scale: { duration: ZOOM_MS / 1000, ease: easings.premium },
+          }}
+          style={{ willChange: "transform, opacity" }}
+        >
+          <Image src={LAST} alt="" fill priority sizes="100vw" className="object-cover" />
+        </motion.div>
+      )}
     </motion.div>
   );
 }
