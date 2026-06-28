@@ -19,8 +19,8 @@ import { practitioners } from "@/content/practitioners";
  * Section order is intentional — sets the editorial pacing:
  *  1.  Hero                  — cinematic intro
  *  2.  PressStrip            — instant trust
- *  3.  VoyageScroll          — the open: a voyage told on scroll
- *  4.  Manifesto             — the thesis
+ *  3.  Manifesto             — mission statement (who/where/what, in one line)
+ *  4.  VoyageScroll          — a day aboard: copy left, photography right
  *  5.  Pillars               — Sail, Supper, Soul
  *  6.  Vessel (+ carousel)   — the object, scrolled through
  *  7.  Experiences           — local offerings out of Marina Del Rey
@@ -40,8 +40,8 @@ export default function HomePage() {
       <IntroOverlay />
       <Hero />
       <PressStrip />
-      <VoyageScroll />
       <Manifesto />
+      <VoyageScroll />
       <Pillars />
       <Vessel />
       <Experiences />
