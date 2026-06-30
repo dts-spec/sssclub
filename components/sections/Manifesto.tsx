@@ -26,8 +26,8 @@ export function Manifesto() {
             private access to a{" "}
             <em className="italic text-gold-deep">luxury catamaran</em> — designed
             for restorative days on the water, romantic staycations, weekend
-            getaways, corporate off-sites, and six-course suppers at the
-            water&apos;s edge.
+            getaways, corporate off-sites, and multi-course omakase dinners at
+            the water&apos;s edge.
           </p>
         </RevealOnScroll>
 
